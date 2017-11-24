@@ -1,0 +1,1 @@
+I have provided links to the sketches I used for the particular projects, and any components not mentioned.
