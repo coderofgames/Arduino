@@ -26,8 +26,8 @@ const int freqOutputPin = 11;   // OC2A output pin for ATmega328 boards
 // Note that the prescale value is just for printing; changing it here
 // does not change the clock division ratio for the timer!  To change
 // the timer prescale division, use different bits for CS22:0 below
-const int prescale  = 1;
-const int ocr2aval  = 3; // this counts 0,1,2,3, triggering high for half 
+const int prescale  = 1.5;
+const int ocr2aval  = 6; // this counts 0,1,2,3, triggering high for half 
 
 // NOTEs ABOUT THE VALUES
 // opening the serial monitor shows the frequency and time period
