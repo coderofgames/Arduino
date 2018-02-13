@@ -28,6 +28,6 @@ SW - D4
 GND - GND on Arduino
 
 Then upload the code, make sure you have an arduino with enough memory. There is also pin 13 (D13) on the Arduino that I 
-have used for a switch to start the sweep, so use whatever button you like there. At this stage the device must be
-reset after a sweep, and since the memory is low (on my Arduino Nano) I have not set up variable sweeps, so I just
+have used for a switch to start the frequency sweep, so use whatever button you like there. At this stage the device must be
+reset after a frequency sweep, and since the memory is low (on my Arduino Nano) I have not set up variable frequency sweeps, so I just
 sweep over the audio frequency range in steps of 220 Hz, this step size may change.
