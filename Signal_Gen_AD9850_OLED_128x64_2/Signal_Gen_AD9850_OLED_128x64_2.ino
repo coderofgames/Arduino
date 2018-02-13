@@ -11,7 +11,7 @@ const int min_frequency=25; // Minimum Frequency
 
 
 unsigned long last_frequency = 5000;
-unsigned long frequency_step = 1;
+double frequency_step = 1;
 
 const int EncoderPinCLK = 2; 
 const int EncoderPinDT = 3;  
@@ -19,18 +19,15 @@ const int EncoderPinSW = 4;
 //=====================================================================
 
 
-const int W_CLK_PIN = 7;
-const int FQ_UD_PIN = 8;
-const int DATA_PIN = 9;
-const int RESET_PIN = 10;
 
-double freq = 10000000; // not used
+
+
 double trimFreq = 124999500; // used for calibration
 
 int phase = 0; // not currently used
 
 // Updated by the ISR (Interrupt Service Routine)
-unsigned volatile long frequency = 5000;
+volatile double frequency = 5000;
 
 // interrupt service request
 void isr ()  
@@ -56,9 +53,16 @@ void isr ()
     }
 }
 
+/*
+const int W_CLK_PIN = 7;
+const int FQ_UD_PIN = 8;
+const int DATA_PIN = 9;
+const int RESET_PIN = 10;
+*/
 void setup_DDS()
 {
-    DDS.begin(W_CLK_PIN, FQ_UD_PIN, DATA_PIN, RESET_PIN);
+    /*DDS.begin(W_CLK_PIN, FQ_UD_PIN, DATA_PIN, RESET_PIN);*/
+    DDS.begin(7, 8, 9, 10);
     DDS.calibrate(trimFreq);
 }
 
@@ -129,20 +133,26 @@ void show_frequency()
         display.setCursor(0,20);  
         display.print(frequency);
     }
-  
-    if (frequency>=1000)
+    else if (frequency>=1000 && frequency < 1000000)
     {  
         display.print("freq (kHz):");
         display.setCursor(0,20);  
         display.println(display_frequency/1000);      
     }
+    else if (frequency>=1000000)
+    {  
+        display.print("freq (MHz):");
+        display.setCursor(0,20);  
+        display.println(display_frequency/1000000);      
+    }
+    
 
     display.setCursor(0,40); 
     if( sweep )
     {
         display.print("SWEEP :");
     }
-    else display.print("STEP :"); //display.println(0xDEADBEEF, HEX);
+    else display.print("STEP (Hz):"); //display.println(0xDEADBEEF, HEX);
     display.setCursor(0,55); 
     display.println(frequency_step); //display.println(0xDEADBEEF, HEX);
 
@@ -156,7 +166,7 @@ void show_frequency()
 
 void setup()   
 {                
-    Serial.begin(9600);
+    //Serial.begin(9600);
 
     setup_DDS();
   
@@ -190,33 +200,32 @@ void loop() {
   // process the rotary encoder 
     if( digitalRead(SWEEP)== HIGH && !sweep_complete)
     {
-        sweep_freq(20, 22000, 220);
-        sweep = true;
+        sweep_freq(min_frequency, last_frequency);
+        
     }
-    else sweep = false;
-    
+
     if ((!digitalRead(EncoderPinSW))) 
     {
         while (!digitalRead(EncoderPinSW))
-          delay(10);
+            delay(10);
         // change the frequency step when the encoder is clicked
         if (frequency_step>max_frequency_step)
         {
-            frequency_step=1;
+            frequency_step=0.1;
         }
         else
         {
             frequency_step=frequency_step*10;  
         }
-        Serial.print("multiplier:");
-        Serial.println(frequency_step);
+        //Serial.print("multiplier:");
+        //Serial.println(frequency_step);
 
     }
  
     if (frequency != last_frequency) 
     {
-        Serial.print(frequency > last_frequency ? "Up  :" : "Down:");
-        Serial.println(frequency);
+        //Serial.print(frequency > last_frequency ? "Up  :" : "Down:");
+        //Serial.println(frequency);
     
         DDS.setfreq(frequency, phase);
         last_frequency = frequency ;
@@ -226,21 +235,31 @@ void loop() {
 }
 
 // need to disable all interupts for sweep.
-void sweep_freq(unsigned long start_freq, unsigned long end_freq, int num_steps)
+void sweep_freq(double start_freq, double end_freq)
 {
+    sweep = true;
     frequency = start_freq;
     DDS.setfreq(frequency, phase);
 
-    unsigned long sweep_step = (unsigned long)(float(end_freq - start_freq) / num_steps);
+    unsigned long num_steps = (unsigned long)(double)((end_freq - start_freq) / frequency_step);
+    // crude adjustment of time delay
+    int time_delay = 10;
+    if( num_steps > 10000 )
+        time_delay = 1;
+        
     for( int i = 0; i < num_steps; i++ )
     {
-        frequency=frequency+sweep_step; // Could be +5 or +10
+        frequency=frequency + frequency_step; // Could be +5 or +10
         DDS.setfreq(frequency, phase);
         show_frequency();
-        delay(10);
+        if(digitalRead(EncoderPinSW))
+        {
+            break;
+        }
+        delay(time_delay);
     }
+    sweep = false;
     sweep_complete = true;
-
 }
 
 
