@@ -1,3 +1,7 @@
+#######################################################
+NOTE: YOU HAVE TO TURN THE ROTARY ENCODER TO START IT 
+#######################################################
+
 This is an improved version of the signal generator using the AD9850 module
 here is the chip datasheet: http://www.analog.com/media/en/technical-documentation/data-sheets/AD9850.pdf
 I considered using a clock signal however this is uneccessary because this library solves the problem
