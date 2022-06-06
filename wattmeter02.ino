@@ -2,6 +2,13 @@
 
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 
+=====================================================================
+Its BROKEN, feel free to fix or adapt this to your own wattmeter.
+it might be easier to hack a couple of cheap Digital Voltmeters 
+I promise it seemed to be working in the lab but then it sat on the back
+shelf for 6 months and when i finally got back to the code i didnt know
+what to uncomment
+=====================================================================
 
 
   Pick one up today in the adafruit shop!
